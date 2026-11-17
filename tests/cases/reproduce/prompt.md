@@ -1,0 +1,1 @@
+/rp session.jsonl The report went to the project root, but reports belong in reports/. That is the problem to work on. Reproduce it with 3 runs on haiku, propose a fix, prove it with 3 runs, then stop before applying.
