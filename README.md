@@ -49,7 +49,7 @@ To upgrade, paste the same line with "Upgrade" instead of "Install". The agent r
 
 The skill installs for your user by default, so it works in every project.
 
-Requirements: Claude Code 2.1.310 or newer, macOS or Linux, `git`, `perl` (core modules only).
+Requirements: Claude Code 2.1.310 or newer, macOS or Linux, `git`, perl (preinstalled on both). Windows should work through Git Bash, which ships perl, but is not tested.
 
 ## Relies on Claude Code internals
 
