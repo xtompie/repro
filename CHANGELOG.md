@@ -5,6 +5,10 @@ The installed version is in `<skills dir>/repro/VERSION`. To upgrade, see "Upgra
 ## 0.1.2
 
 - Replays use the model the session used, read from its last assistant message. `--model` still overrides it. The run prints which model it uses.
+- A replay of a moment with nothing before it starts a new session instead of failing to resume.
+- `/repro` asks before reproducing, even with one suspect, unless you described the problem.
+- Shell commands run one at a time, so plain permission mode does not reject them.
+- Tests: allowed tools with spaces (`Bash(git worktree:*)`) are passed whole.
 
 ## 0.1.1
 

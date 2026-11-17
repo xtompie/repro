@@ -11,7 +11,7 @@ RUNS=2
 MODEL=haiku
 ONLY=""
 TIMEOUT=900
-DEFAULT_TOOLS='Read Glob Grep Write Bash(perl:*) Bash(ls:*) Bash(cat:*) Bash(mkdir:*) Bash(git worktree:*) Bash(git status:*) Bash(git rev-parse:*)'
+DEFAULT_TOOLS='Read,Glob,Grep,Write,Bash(perl:*),Bash(ls:*),Bash(cat:*),Bash(mkdir:*),Bash(git worktree:*),Bash(git status:*),Bash(git rev-parse:*)'
 # The converter is the same file as in mentor (xtompie/mentor). Copy it from there when it changes.
 CONVERTER="$ROOT/skills/repro/scripts/session-text.pl"
 
@@ -47,13 +47,14 @@ for dir in "$CASES"/*/; do
         install "$p"
         [ -f "$dir/setup.sh" ] && (cd "$p" && FIXTURES="$ROOT/tests/fixtures" env -u CLAUDE_CODE_MESSAGING_SOCKET -u CLAUDE_CODE_SESSION_ID -u CLAUDE_PID sh "$dir/setup.sh")
         tools=$DEFAULT_TOOLS
-        [ -f "$dir/allowed-tools" ] && tools=$(cat "$dir/allowed-tools")
+        # allowed-tools: one rule per line, or all on one line; rules may contain spaces (Bash(git status:*)).
+        [ -f "$dir/allowed-tools" ] && tools=$(perl -ne 'chomp; print join(",", /(\S+\([^)]*\)|\S+)/g), ","' "$dir/allowed-tools" | sed 's/,$//')
         stream="$p.stream"
         # shellcheck disable=SC2086
         (cd "$p" && env -u CLAUDE_CODE_MESSAGING_SOCKET -u CLAUDE_CODE_MESSAGING_TOKEN -u CLAUDE_CODE_SESSION_ID -u CLAUDE_PID \
             perl -e 'alarm shift; exec @ARGV' "$TIMEOUT" \
             claude -p "$(cat "$dir/prompt.md")" --model "$MODEL" --permission-mode default --output-format stream-json --verbose \
-            --allowedTools $tools) > "$stream" 2>&1
+            --allowedTools "$tools") > "$stream" 2>&1
         out="$p.out"
         perl -CS -MJSON::PP -ne 'my $j = eval { decode_json($_) } or next; print $j->{result} if ($j->{type} // "") eq "result"' "$stream" > "$out"
         reason=$(sh "$dir/check.sh" "$p" "$out" "$stream" 2>&1)

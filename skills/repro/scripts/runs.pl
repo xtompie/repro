@@ -15,6 +15,7 @@ while (@ARGV) {
     die "unknown argument: $k\n" if $k !~ /^--(dir|session|prompt|runs|out|model|timeout)$/;
     $o{$1} = shift @ARGV;
 }
+$o{model_given} = 1 if $o{model};
 for my $need (qw(dir session prompt out)) {
     next if defined $o{$need};
     print STDERR "Usage: perl runs.pl --dir <sandbox> --session <cut.jsonl> --prompt <file> --runs <n> --out <dir> [--model <name>]\n";
@@ -32,20 +33,26 @@ delete $ENV{$_} for qw(CLAUDE_CODE_SESSION_ID CLAUDE_PID CLAUDE_CODE_MESSAGING_S
 
 binmode STDOUT, ":utf8";
 my $json = JSON::PP->new->utf8;
-if (!$o{model}) {
+my $turns = 0;
+{
     open my $h, '<', $session or die "cannot read $session: $!\n";
     while (my $line = <$h>) {
         my $j = eval { $json->decode($line) } or next;
-        next if ($j->{type} // '') ne 'assistant' || ref $j->{message} ne 'HASH';
+        my $type = $j->{type} // '';
+        $turns++ if $type eq 'user' || $type eq 'assistant';
+        next if $type ne 'assistant' || ref $j->{message} ne 'HASH';
         my $m = $j->{message}{model} // '';
-        $o{model} = $m if $m ne '' && $m !~ /^</;
+        $o{model} = $m if !$o{model_given} && $m ne '' && $m !~ /^</;
     }
     close $h;
 }
+# Cut before the first message: there is no conversation to resume, so each run starts fresh.
+print $turns ? "replaying after $turns earlier messages\n" : "no earlier messages: each run is a new session\n";
 print 'model: ', ($o{model} // 'Claude Code default (none recorded in the session)'), "\n";
 for my $i (1 .. $o{runs}) {
-    my @cmd = ('claude', '-p', $prompt, '--resume', $session, '--fork-session',
-        '--permission-mode', 'acceptEdits', '--output-format', 'stream-json', '--verbose');
+    my @cmd = ('claude', '-p', $prompt);
+    push @cmd, '--resume', $session, '--fork-session' if $turns;
+    push @cmd, '--permission-mode', 'acceptEdits', '--output-format', 'stream-json', '--verbose';
     push @cmd, '--model', $o{model} if $o{model};
     my $stream = "$out/run-$i.stream";
     my $pid = fork // die "fork failed: $!\n";

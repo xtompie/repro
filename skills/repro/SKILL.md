@@ -7,6 +7,8 @@ disable-model-invocation: true
 
 Talk in the user's language. Ask one question at a time. Never edit the user's files before step 8.
 
+Run every shell command on its own: no `;`, `&&`, `|`, no variables like `S=...` or `$S`, no `cd`. Write paths out in full. Plain permission mode rejects combined commands, and the user then has to approve each one.
+
 ## 1. Read the session
 
 - No session given: this session, id `${CLAUDE_SESSION_ID}`.
@@ -29,7 +31,9 @@ A cause is a hypothesis. The reproduction tests it.
 
 ## 3. Ask which one
 
-Show the suspects as a short list: turn, what happened, cause, one line of evidence. Ask which one to work on. Stop and wait.
+If the user described in their own words what went wrong (in the arguments or before), do not list or ask: take that moment and go to step 4 or 5 by its cause. A bare session id or path names no problem: list and ask.
+
+Otherwise show the suspects as a short list: turn, what happened, cause, one line of evidence. Ask which one to work on. Stop and wait. This holds for a single suspect too: show it and ask before any sandbox or run, because a reproduction costs time and tokens.
 
 ## 4. Operator cause
 
@@ -42,7 +46,7 @@ Read `${CLAUDE_SKILL_DIR}/references/reproduce.md` and follow it. In short:
 1. Write down the expected result in one sentence before any run. For a gap, the user's final correction is the expected result.
 2. Make a sandbox inside the project: `git worktree add --detach .repro/<short id>`, plus any uncommitted files the moment depends on. Keep the cut session, the prompt file and the outputs in `.repro/` too.
 3. Cut the session just before the failing user message: `perl ${CLAUDE_SKILL_DIR}/scripts/cut.pl <session.jsonl> <cut.jsonl> --before "<start of that user message>"`.
-4. Run it: `perl ${CLAUDE_SKILL_DIR}/scripts/runs.pl --dir .repro/<short id> --session <cut.jsonl> --prompt <prompt file> --runs 5 --out <out dir>`. It uses the model the session used; it prints which. Add `--model <name>` only if the user asked for another model.
+4. Run it: `perl ${CLAUDE_SKILL_DIR}/scripts/runs.pl --dir .repro/<short id> --session <cut.jsonl> --prompt <prompt file> --runs 5 --out <out dir>`. It uses the model the session used and prints which. If it prints "Claude Code default" (nothing before the cut), add `--model` with the model from the `# models` line of the converted session. Use another model only if the user asked.
 5. Judge every run against the expected result. Count failures.
 
 0 failures: the problem does not reproduce. Say so and stop. 1 to 3 of 5: sharpen the reproduction or go to 10 runs before and after.
