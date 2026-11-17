@@ -2,6 +2,10 @@
 
 The installed version is in `<skills dir>/repro/VERSION`. To upgrade, see "Upgrading" in `INSTALL.md`.
 
+## 0.1.2
+
+- Replays use the model the session used, read from its last assistant message. `--model` still overrides it. The run prints which model it uses.
+
 ## 0.1.1
 
 - README: a diagram that follows one problem through every step.

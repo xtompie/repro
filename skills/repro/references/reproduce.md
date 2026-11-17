@@ -24,6 +24,8 @@ Write it down before the first run, in one sentence that a run either meets or n
 
 `perl runs.pl --dir <sandbox> --session <cut.jsonl> --prompt <prompt file> --runs <n> --out <out dir> [--model <name>]`
 
+Without `--model`, the runs use the model the session used (read from its last assistant message), so the replay is faithful. It prints the model it uses.
+
 - The prompt file holds the failing user message, as the user wrote it.
 - Each run resumes a fork of the cut session inside the sandbox, so the runs do not change the original and do not see each other.
 - Runs use `--permission-mode acceptEdits`: file edits in the throwaway sandbox are allowed, everything else follows the user's own settings. If a run stops on a permission, say which and ask.

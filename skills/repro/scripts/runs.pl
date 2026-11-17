@@ -2,6 +2,7 @@
 # Replay one moment of a Claude Code session several times in a sandbox.
 # Each run resumes a fork of the cut session inside the sandbox folder and sends the prompt.
 # Writes run-<n>.txt (the answer) and run-<n>.tools (one line per tool call) into the out folder.
+# Without --model the runs use the model the session itself used (its last assistant message), so the replay is faithful.
 # Usage: perl runs.pl --dir <sandbox> --session <cut.jsonl> --prompt <file> --runs <n> --out <dir> [--model <name>] [--timeout <seconds>]
 use strict;
 use warnings;
@@ -31,6 +32,17 @@ delete $ENV{$_} for qw(CLAUDE_CODE_SESSION_ID CLAUDE_PID CLAUDE_CODE_MESSAGING_S
 
 binmode STDOUT, ":utf8";
 my $json = JSON::PP->new->utf8;
+if (!$o{model}) {
+    open my $h, '<', $session or die "cannot read $session: $!\n";
+    while (my $line = <$h>) {
+        my $j = eval { $json->decode($line) } or next;
+        next if ($j->{type} // '') ne 'assistant' || ref $j->{message} ne 'HASH';
+        my $m = $j->{message}{model} // '';
+        $o{model} = $m if $m ne '' && $m !~ /^</;
+    }
+    close $h;
+}
+print 'model: ', ($o{model} // 'Claude Code default (none recorded in the session)'), "\n";
 for my $i (1 .. $o{runs}) {
     my @cmd = ('claude', '-p', $prompt, '--resume', $session, '--fork-session',
         '--permission-mode', 'acceptEdits', '--output-format', 'stream-json', '--verbose');

@@ -42,7 +42,7 @@ Read `${CLAUDE_SKILL_DIR}/references/reproduce.md` and follow it. In short:
 1. Write down the expected result in one sentence before any run. For a gap, the user's final correction is the expected result.
 2. Make a sandbox inside the project: `git worktree add --detach .repro/<short id>`, plus any uncommitted files the moment depends on. Keep the cut session, the prompt file and the outputs in `.repro/` too.
 3. Cut the session just before the failing user message: `perl ${CLAUDE_SKILL_DIR}/scripts/cut.pl <session.jsonl> <cut.jsonl> --before "<start of that user message>"`.
-4. Run it: `perl ${CLAUDE_SKILL_DIR}/scripts/runs.pl --dir .repro/<short id> --session <cut.jsonl> --prompt <prompt file> --runs 5 --out <out dir>`. Add `--model <name>` if the user asked for another model.
+4. Run it: `perl ${CLAUDE_SKILL_DIR}/scripts/runs.pl --dir .repro/<short id> --session <cut.jsonl> --prompt <prompt file> --runs 5 --out <out dir>`. It uses the model the session used; it prints which. Add `--model <name>` only if the user asked for another model.
 5. Judge every run against the expected result. Count failures.
 
 0 failures: the problem does not reproduce. Say so and stop. 1 to 3 of 5: sharpen the reproduction or go to 10 runs before and after.
