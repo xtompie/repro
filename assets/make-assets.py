@@ -23,10 +23,10 @@ TAGS = [["claude-code", "agentic-engineering", "ai-agents"], ["prompt-engineerin
 URL = "github.com/xtompie/repro"
 
 THEMES = {
-    "dark": dict(bg="#0a0907", main="#ff5a1f", dark="#c23f12", ring="#ffab85", lens="#fff1ea",
-                 h1="#f3ead8", h3="#cfc6b4", tag="#c23f12", tagtext="#ffab85", url="#8a7a5c"),
-    "light": dict(bg=None, main="#d9480f", dark="#a8350d", ring="#e8743f", lens="#ffd9c7",
-                  h1="#1f1a12", h3="#4a4234", tag="#e8743f", tagtext="#a8350d", url="#7a6440"),
+    "dark": dict(bg="#0a0907", main="#e2643f", dark="#b53e1b", ring="#ebae9c", lens="#f8efed",
+                 h1="#f3ead8", h3="#cfc6b4", tag="#b53e1b", tagtext="#ebae9c", url="#8a7a5c"),
+    "light": dict(bg=None, main="#bf5329", dark="#943f21", ring="#d27c55", lens="#f8dcce",
+                  h1="#1f1a12", h3="#4a4234", tag="#d27c55", tagtext="#943f21", url="#7a6440"),
 }
 
 # 5x7 pixel letters; lowercase starts at row 2 and nothing goes below row 6.

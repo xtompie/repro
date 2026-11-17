@@ -13,6 +13,8 @@
 - Reruns to prove the fix works.
 - Applies it only when you say yes.
 
+![One problem, from session to proven fix: the session, the suspected cause, 4 of 5 runs reproduce the mistake, the fix to AGENTS.md, 0 of 5 after the fix, applied only on yes.](assets/flow.svg)
+
 ## Why
 
 A session goes wrong and you correct the model by hand. Next time it goes wrong the same way. The usual fix is to edit a skill or `AGENTS.md` from memory and hope.
